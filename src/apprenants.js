@@ -6,7 +6,7 @@ import { progression } from "./progression"
 const principal = document.querySelector("main")
 
 export function creerApprenants(details, position){
-    const idButtonDetails = "btn_details-" + Math.random()
+    const idButtonDetails = "btn_details-" + details.id
     const idCard = "btn-card-" + details.id
  
     position.insertAdjacentHTML(
