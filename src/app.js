@@ -1,156 +1,144 @@
-const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYzOTQxMzY4OSwiZXhwIjoxOTU0OTg5Njg5fQ.eW1mB199JfwekcQ1tbTpY2gwkM5HhxJTYzJMHpDQ1_w"
-const API_URL = "https://edeaeijsaktqxssxcxqx.supabase.co/rest/v1/Apprenant"
+// import insererApprenant from "./insertion";
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MDgzMzg3MCwiZXhwIjoxOTU2NDA5ODcwfQ.1nnrzdiWTaLA82VqW-vsGxoi8F9vVs1J6jkPeVWodzg"
+const API_URL = "https://zyesichgkjjujbpairss.supabase.co/rest/v1/Apprenants"
 
-const infoApprenants = document.querySelector("form")
-const laListe = document.getElementById("apprenants");
-const inputNom = document.getElementById("nom")
-const inputPrenom = document.getElementById("prenom")
-const selectNiveau = document.getElementById("selection")
-const inputBio = document.getElementById("bio")
-const ajouter = document.getElementById("ajouter")
+import { creerCarte } from './carte.js';
+import { creerApprenants } from './apprenants.js';
 
-const tabApprenants = []
-const sauvegarder = document.getElementById("sauvegarder")
+// Recuperation des élément du formulaire
+const inputNom = document.querySelector("#nom")
+const inputPrenom = document.querySelector("#prenom")
+const inputNiveau = document.querySelector("#selection")   
+const inputBiographie = document.querySelector("#bio")
+const btnAjouter = document.querySelector("#ajouter")
+
+const laListe = document.querySelector("#apprenants")
+const btnSauvegarder = document.querySelector("#sauvegarder")
+const contenuPage = document.querySelector("main")
+
+//Tableau pour stocker les cartes
+export let tab = [] 
+
+// VERIFICATION DES MOTS SAISIS
+inputBiographie.addEventListener("input", (event) => {
+    const longueurMax = 130
+    const contenuSaisi = inputBiographie.value
+    const longueurSaisi = contenuSaisi.length
+    const reste = longueurMax - longueurSaisi
+
+    //actualiser le dom pour afficher le nombre
+    const paragraphCompteur = document.getElementById("limite-text")
+    const textSaisi = document.getElementById("text-progress")
+    const textRestant = document.getElementById("text-restant")
+    
+    textSaisi.textContent = longueurSaisi
+    textRestant.textContent = " Il vous reste " + reste
 
 
-// const btnModifier = "btn-valider" + details.id
-// const idCard = "numero_card-" + details.id
+    if (reste < 0) {
+        paragraphCompteur.style.color = "#CE0033"
+        btnAjouter.disabled = true
+    } else if (reste <= 16) {
+        paragraphCompteur.style.color = "yellow"
+        btnAjouter.disabled = false
+    } else {
+        paragraphCompteur.style.color = "#00000"
+        btnAjouter.disabled = false
+    }
+})
 
-
-infoApprenants.addEventListener("submit", (event) => {
+// On n'ecoute l'événment sur le formulaire
+btnAjouter.addEventListener("click", (event)=> {
     event.preventDefault()
 
-    // RECUPERATION DES VALEURS DU FORMULAIRE
-    nomApprenant = inputNom.value
-    prenomApprenant = inputPrenom.value
-    niveauChoisi = selectNiveau.value
-    biographieSaisi = inputBio.value
-
-    if (nomApprenant.trim().length < 4 || prenomApprenant.trim().length < 7 || biographieSaisi.trim().length < 10) {
-        alert("Merci de saisir des informations correctes")
-        return
+    let indice
+    // Récupération des valeurs saisies du formulaire
+    const inputNomSaisi = inputNom.value
+    const inputPrenomSaisi = inputPrenom.value
+    const inputBiographieSaisi = inputBiographie.value
+    const inputNiveauSaisi = inputNiveau.value
+    
+    // Vérificaation des informations du formulaire
+    
+    if (inputPrenomSaisi.trim().length < 4 || inputNomSaisi.trim().length < 4 || inputBiographieSaisi.trim().length < 8 || inputNiveauSaisi.trim().length < 3) {
+      inputNom.classList.add("invalid")
+      inputPrenom.classList.add("invalid")
+      inputNiveau.classList.add("invalid")
+      inputBiographie.classList.add("invalid")
+      alert("Merci de saisir des informations correctes")
+      return
+    }
+    
+    // Création de l'element à mettre dans la carte 
+    const nouveauApprenant = {
+      nom : inputNomSaisi ,
+      prenom : inputPrenomSaisi,
+      niveau: inputNiveauSaisi,
+      biographie : inputBiographieSaisi,
     }
 
-    let nouveauApprenant = {
-        nom : nomApprenant,
-        prenom : prenomApprenant,
-        niveau : niveauChoisi,
-        biographie : biographieSaisi,
-    }
+    tab.push(nouveauApprenant)
+    indice = tab.indexOf(nouveauApprenant)
+    
+    // Appel de la fonction pour creer une nouvelle carte
+    creerCarte(nouveauApprenant, laListe, indice)
 
-    insererApprenant(nouveauApprenant)
-    tabApprenants.push(nouveauApprenant)
-    //console.log(tabApprenants.length)
-})
+    inputNom.value = ""
+    inputPrenom.value = ""
+    inputBiographie.value = ""
+    inputNiveau.value = ""
+});
 
-function insererApprenant(details){
+// Sauvegarde des données du carte sur la bases de données 
+btnSauvegarder.addEventListener("click", (event)=>{
+   event.preventDefault()
+    // on vide la page
+   contenuPage.innerHTML = "" 
+   // on creer un tutre
+   const titre = document.createElement("h3")
+   titre.classList.add("p-5")
+   titre.innerText = "La liste des apprenants"
+   contenuPage.appendChild(titre)
+   const div = document.createElement("div")
+   div.classList.add("m-5")
+   div.style.flexWrap = "wrap"
+   div.classList.add("d-flex")
+   titre.appendChild(div)
 
-    laListe.insertAdjacentHTML(
-        "afterbegin",
-        `<div class="card mb-3" style="max-width: 540px;>
-            <div class="row g-0">
-                <div class="col-md-4">
-                    <img src="./src/images/profil.jpeg" class="img-fluid rounded-pill" alt="...">
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">${details.nom} ${details.prenom}</h5>
-                        <p class="card-text">${details.biographie}</p>
-                    </div>
-                </div>
-                <p class="card-text"><small class="float-end">${details.niveau}</small></p>
-            </div>
-        </div>
-        `
-    )
-}
 
-// ENVOIE DES DETAILS VERS LA BASE DE DONNÉES VIA L'API
 
-sauvegarder.addEventListener("click", ()=>{
-
-    // ENVOIE DE LA LISTE VERS LA BASE
-    tabApprenants.forEach((apprenant)=>{
+   // on ajoute tout les élements du tableau dans la base de données
+   tab.forEach((apprenant)=>{
         fetch(API_URL, {
             method: "POST",
-            headers : {
-                apikey : API_KEY,
-                "Content-Type" : "application/json",
+            headers: {
+            apikey: API_KEY,
+            "Content-Type": "application/json",
+            Prefer: "return=representation",
             },
-            body : JSON.stringify(apprenant),
+            body: JSON.stringify(apprenant),
         })
+            .then((response) => response.json())
+            .then((data) => {
+            const ideeCreeAuNiveauAPI = data[0]
+            // console.log(ideeCreeAuNiveauAPI)
+            //AJOUT DE LA NOUVELLE IDEE AU NIVEAU DE LA PAGE
+            creerApprenants(ideeCreeAuNiveauAPI, div)
+            })
+
+        })
+
+        // on affiche tout les élément de la base de données
+            fetch(API_URL, {
+              headers: {
+                apikey: API_KEY,
+              },
+            })
+              .then((response) => response.json())
+              .then((infos) => {
+                infos.forEach((info) => {
+                  creerApprenants(info, div) 
+                })
+              })
+
     })
-})
-
-
-// const modifier = document.getElementById(btnmodifier)
-
-// // MODIFIER/SUPPRIMER CARTE
-    
-// function func_btnModifier(btnModifier,idModifier)
-// {
-//     btnModifier.addEventListener("click",(event)=>{
-//         event.preventDefault()
-//         //alert("bonjour")
-//         //console.log(apprenants)
-//         apprenants.forEach(apprenant=>{
-//             if(apprenant.id==idModifier)
-//             {
-//                 nom.value=apprenant.nom
-//                 prenom.value=apprenant.prenom
-//                 biographie.value=apprenant.biographie
-//                 console.log(apprenant.nom)
-//                 btnAjouter.value="Modifier"
-//                 btnAjouter.textContent="Modifier"
-//                 console.log(btnAjouter)
-//                 sessionStorage.setItem("apprenantAMod",idModifier)
-//             }
-            
-//         })
-//     })
-// }
-
-
-// function func_btnSupprimer(btnSupprimer,idSpprimer,carteSupprimer){
-//     btnSupprimer.addEventListener("click",(event)=>{
-//         event.preventDefault()
-//         apprenants.forEach(apprenant=>{
-//             if(apprenant.id==idSpprimer)
-//             {
-//                 //console.log(apprenants)
-//                 //console.log(apprenants.length)
-//                 const index=apprenants.indexOf(apprenant)
-//                 apprenants.splice(index,1)
-//                 divTableauApprenant.removeChild(carteSupprimer)
-//                 console.log(apprenants)
-               
-//             }else{
-//                 console.log("mauvaise idee")
-//                 console.log(idSpprimer)
-               
-//             }
-            
-//         })
-       
-        
-//     })
-// }
-
-// RÉCUPÉRATION DES INFOS DE LA BASE DE DONNÉES ET AFFICHAGE SUR UNE NOUVELLE PAGE
-
-// listeDesIdees.addEventListener("click", (event) => {
-//     proposition.innerHTML = ""
-//     event.preventDefault()  
-//     fetch(API_URL, {
-//               method : "GET",
-//               headers : {
-//               apikey: API_KEY,
-//           },
-//       })
-//       .then((response) => response.json())
-//       .then((idees) => {
-//         idees.forEach((donnee) => {
-//           creerCarte(donnee)
-//         })
-//       })
-//   })
