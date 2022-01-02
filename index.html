@@ -9,9 +9,11 @@
     <title>School App</title>
 </head>
 <body>
+    <header>
+        <h1 class="text-center py-3">SCHOOL APP</h1>
+    </header>
     <main>
         <div class="container">
-            <h1 class="text-center py-3">SCHOOL APP</h1>
             <div class="row">
                 <div class="col-lg-6">
                     <form action="" method="post">
@@ -34,13 +36,16 @@
                                 >Biographie</label>
                                 <textarea
                                     class="form-control"
+                                    name="bio"
                                     id="bio"
-                                    name="biographie"
                                     placeholder="ma biographie"
                                     rows="3">
                                 </textarea>
-
-                            <p id="limite-text" class="float-end"><span id="text-progress">00</span> /130</p>
+                                <p id="limite-text">
+                                    Contenu saisi
+                                    <span id="text-progress">00 </span> / 130
+                                </p>
+                                <p id="text-restant"></p>
                         </div>
                         <button type="submit" class="btn btn-primary mt-5" id="ajouter">Ajouter</button>
                     </form>
@@ -55,6 +60,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="mt-5">
+            Pour constater votre avancement dans chacune des compétences cliquez <a href="src/compétences.js" target="_blank">ici</a>
         </div>
     </main>
     <script src="./dist/app.js"></script>
